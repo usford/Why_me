@@ -10,7 +10,30 @@ public class Character : MonoBehaviour
 
     [Tooltip("Активное оружие")]
     [SerializeField]
-    public Weapon activeWeapon;
+    public WeaponCharacteristic activeWeapon;
+
+    public WeaponCharacteristic ActiveWeapon
+    {
+        set
+        {
+            activeWeapon = value;
+            TakeGun();
+        }
+    }
+
+
+
+    [Tooltip("Оружия")]
+    [SerializeField]
+    public List<WeaponCharacteristic> weapons;
+
+    public WeaponCharacteristic addWeapon
+    {
+        set
+        {
+            weapons.Add(value);
+        }
+    }
 
     SpriteRenderer spriteCharacter;
     SpriteRenderer spriteWeapon;
@@ -20,6 +43,20 @@ public class Character : MonoBehaviour
 
     //Стрельба
     private Bullet bullet;
+
+    //Смена оружия
+    private KeyCode[] keyCodes =
+    {
+        KeyCode.Alpha1,
+        KeyCode.Alpha2,
+        KeyCode.Alpha3,
+        KeyCode.Alpha4,
+        KeyCode.Alpha5,
+        KeyCode.Alpha6,
+        KeyCode.Alpha7,
+        KeyCode.Alpha8,
+        KeyCode.Alpha9
+    };
     
 
     private void Awake()
@@ -30,24 +67,68 @@ public class Character : MonoBehaviour
         //Первоначальное отображение оружия
         if (activeWeapon != null)
         {
-            GameObject go = new GameObject();
-            go.AddComponent<SpriteRenderer>();
-            go.GetComponent<SpriteRenderer>().sprite = activeWeapon.SpriteWeapon;
-            go.name = activeWeapon.NameWeapon;
-
-            gun = Instantiate(go, new Vector3(0.1f, -0.25f, -2f), go.transform.rotation);
-            Destroy(go);
-            gun.transform.SetParent(gameObject.transform);
-            spriteWeapon = gun.GetComponentInChildren<SpriteRenderer>();
-            spriteWeapon.flipX = spriteCharacter.flipX; 
+            TakeGun();
         }
+    }
+
+    private void TakeGun()
+    {
+        if (activeWeapon != null) Destroy(gun);
+        GameObject go = new GameObject();
+        go.AddComponent<SpriteRenderer>();
+        go.GetComponent<SpriteRenderer>().sprite = activeWeapon.SpriteWeapon;
+        go.name = activeWeapon.NameWeapon;
+
+        gun = Instantiate(go, new Vector3(gameObject.transform.position.x + 0.1f, gameObject.transform.position.y - 0.25f, -2f), go.transform.rotation);
+        Destroy(go);
+        gun.transform.SetParent(gameObject.transform);
+        spriteWeapon = gun.GetComponentInChildren<SpriteRenderer>();
+        spriteWeapon.flipX = spriteCharacter.flipX;
+        gun.AddComponent<Weapon>();
+        gun.GetComponent<Weapon>().weaponCharacteristic = activeWeapon;
+    }
+
+    private void ChangeGun(int index)
+    {
+        //if (Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    int index = weapons.IndexOf(activeWeapon);
+        //    int lastIndex = weapons.Count - 1;
+
+
+        //    if (index + 1 > lastIndex)
+        //    {
+        //        index = 0;
+        //    }else
+        //    {
+        //        index++;
+        //    }
+        //    ActiveWeapon = weapons[index];
+        //}     
+
+        if (index > weapons.Count - 1) return;
+        ActiveWeapon = weapons[index];
     }
 
     private void FixedUpdate()
     {
         if (Input.GetButton("Horizontal")) Run();
         if (Input.GetButton("Vertical")) UpDown();
-        if (Input.GetButton("Fire1")) Shoot();
+        
+        //if (Input.GetKeyDown(KeyCode.Alpha1) || (Input.GetKeyDown(KeyCode.Alpha2)) || (Input.GetKeyDown(KeyCode.Alpha3)))  
+        //{
+           
+        //    //ChangeGun();
+        //}
+
+        //Проверка на нажатие цифры
+        for (int i = 0; i < keyCodes.Length; i++)
+        {
+            if (Input.GetKeyDown(keyCodes[i]))
+            {
+                ChangeGun(i);
+            }
+        }
     }
 
     private void Run()
@@ -69,12 +150,5 @@ public class Character : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, Time.deltaTime * (Input.GetButton("Fire3") ? speed * 2f : speed));
     }
 
-    private void Shoot()
-    {
-        Vector3 position = transform.position;
-
-        Bullet newBullet = Instantiate(bullet, position, bullet.transform.rotation) as Bullet;
-
-        newBullet.Direction = newBullet.transform.right * (spriteCharacter.flipX ? -1.0f : 1.0f);
-    }
+    
 }

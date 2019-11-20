@@ -2,54 +2,61 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New weapon", menuName ="Scriptable Object/New weapon")]
-public class Weapon : ScriptableObject
+public class Weapon : MonoBehaviour
 {
-    [Tooltip("Название оружия")]
+    [Tooltip("Характеристика оружия")]
     [SerializeField]
-    private string nameWeapon;
+    public WeaponCharacteristic weaponCharacteristic;
 
-    [Tooltip("Картинка оружия")]
-    [SerializeField]
-    private Sprite spriteWeapon;
+    private int fireDelay = 5;
 
-    [Tooltip("Урон")]
-    [SerializeField]
-    private int damage;
+    private int currentAttackFrame = 0; 
 
-    public string NameWeapon
+    private Bullet bullet;
+
+    private void Awake()
     {
-        get
+        bullet = Resources.Load<Bullet>("Bullet");
+        
+    }
+
+    private void Start()
+    {
+        fireDelay = (weaponCharacteristic.FireDelay);
+    }
+
+    private void FixedUpdate()
+    {
+        if (Input.GetButton("Fire1") && currentAttackFrame >= fireDelay)
         {
-            return nameWeapon;
-        }
-        set
+            Shoot();
+        }else
         {
-            nameWeapon = value;
+            currentAttackFrame++;
         }
     }
 
-    public Sprite SpriteWeapon
+    private void OnTriggerStay2D(Collider2D other)
     {
-        get
+        if (other.tag == "Player")
         {
-            return spriteWeapon;
-        }
-        set
-        {
-            spriteWeapon = value;
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                WeaponCharacteristic wc = gameObject.GetComponent<Weapon>().weaponCharacteristic;
+                other.GetComponent<Character>().addWeapon = wc;
+                other.GetComponent<Character>().ActiveWeapon = wc;
+                Destroy(gameObject);
+            }
         }
     }
 
-    public int Damage
+    private void Shoot()
     {
-        get
-        {
-            return damage;
-        }
-        set
-        {
-            damage = value;
-        }
+        currentAttackFrame = 0;
+        Vector3 position = transform.position;
+
+        Bullet newBullet = Instantiate(bullet, position, bullet.transform.rotation) as Bullet;
+
+        newBullet.Direction = newBullet.transform.right * (gameObject.GetComponentInChildren<SpriteRenderer>().flipX ? -1.0f : 1.0f);
     }
 }

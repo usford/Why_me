@@ -15,3 +15,4 @@ MonoBehaviour:
   nameWeapon: p2000
   spriteWeapon: {fileID: 21300000, guid: 3e652a597824bd44d91fd93f87e3857d, type: 3}
   damage: 20
+  fireDelay: 20

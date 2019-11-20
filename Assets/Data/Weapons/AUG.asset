@@ -15,3 +15,4 @@ MonoBehaviour:
   nameWeapon: AUG
   spriteWeapon: {fileID: 21300000, guid: 67dc7307ccafef648b6dec0c19553621, type: 3}
   damage: 30
+  fireDelay: 10
