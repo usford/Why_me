@@ -44,6 +44,8 @@ public class Character : MonoBehaviour
     //Стрельба
     private Bullet bullet;
 
+    public float offset;
+
     //Смена оружия
     private KeyCode[] keyCodes =
     {
@@ -74,18 +76,23 @@ public class Character : MonoBehaviour
     private void TakeGun()
     {
         if (activeWeapon != null) Destroy(gun);
-        GameObject go = new GameObject();
-        go.AddComponent<SpriteRenderer>();
-        go.GetComponent<SpriteRenderer>().sprite = activeWeapon.SpriteWeapon;
-        go.name = activeWeapon.NameWeapon;
+        //GameObject go = new GameObject();
+        //go.AddComponent<SpriteRenderer>();
+        //go.GetComponent<SpriteRenderer>().sprite = activeWeapon.SpriteWeapon;
+        //go.name = activeWeapon.NameWeapon;
+
+        GameObject go = Resources.Load<GameObject>(activeWeapon.NameWeapon);
 
         gun = Instantiate(go, new Vector3(gameObject.transform.position.x + 0.1f, gameObject.transform.position.y - 0.25f, -2f), go.transform.rotation);
-        Destroy(go);
+
+        //Destroy(go);
+
         gun.transform.SetParent(gameObject.transform);
         spriteWeapon = gun.GetComponentInChildren<SpriteRenderer>();
         spriteWeapon.flipX = spriteCharacter.flipX;
-        gun.AddComponent<Weapon>();
-        gun.GetComponent<Weapon>().weaponCharacteristic = activeWeapon;
+
+        //gun.AddComponent<Weapon>();
+        //gun.GetComponent<Weapon>().weaponCharacteristic = activeWeapon;
     }
 
     private void ChangeGun(int index)
@@ -108,6 +115,13 @@ public class Character : MonoBehaviour
 
         if (index > weapons.Count - 1) return;
         ActiveWeapon = weapons[index];
+    }
+
+    private void Update()
+    {
+        Vector3 difference = Camera.main.ScreenToWorldPoint(Input.mousePosition) - gun.transform.position;
+        float rotateZ = Mathf.Atan2(difference.x, difference.y) * Mathf.Rad2Deg;
+        gun.transform.rotation = Quaternion.Euler(0f, 0f, -rotateZ + offset + 90f);
     }
 
     private void FixedUpdate()

@@ -14,10 +14,13 @@ public class Weapon : MonoBehaviour
 
     private Bullet bullet;
 
+    [Tooltip("Дуло")]
+    [SerializeField]
+    public Transform shotDir;
+
     private void Awake()
     {
         bullet = Resources.Load<Bullet>("Bullet");
-        
     }
 
     private void Start()
@@ -53,10 +56,10 @@ public class Weapon : MonoBehaviour
     private void Shoot()
     {
         currentAttackFrame = 0;
-        Vector3 position = transform.position;
+        Vector3 position = shotDir.position;
 
-        Bullet newBullet = Instantiate(bullet, position, bullet.transform.rotation) as Bullet;
+        Instantiate(bullet, position, transform.rotation);
 
-        newBullet.Direction = newBullet.transform.right * (gameObject.GetComponentInChildren<SpriteRenderer>().flipX ? -1.0f : 1.0f);
+        //newBullet.Direction = newBullet.transform.right * (gameObject.GetComponentInChildren<SpriteRenderer>().flipX ? -1.0f : 1.0f);
     }
 }
